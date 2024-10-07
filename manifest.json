@@ -1,6 +1,6 @@
 {
-  "name": "Variable Export",
-  "id": "your-plugin-id-here",
+  "name": "Total Onion Export Tool",
+  "id": "to-export-tool",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
