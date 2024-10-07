@@ -17,7 +17,7 @@ async function getAllVariables(category = 'all') {
           valuesByMode: variable.valuesByMode
         }));
 
-      if (category === 'all' || (category === 'theme' && isThemeCollection(collection.name))) {
+      if (category === 'all' || (category === 'theme' && collection.name === 'Theme Settings')) {
         allVariables[collection.name] = collectionVariables;
       }
     }
@@ -29,18 +29,13 @@ async function getAllVariables(category = 'all') {
   }
 }
 
-function isThemeCollection(collectionName) {
-  const themeCategories = ['Text Colours', 'Background Colours', 'Link Colours', 'Fonts', 'Link Decoration'];
-  return themeCategories.includes(collectionName);
-}
-
 function rgbToHex(r, g, b) {
   return "#" + ((1 << 24) + (Math.round(r * 255) << 16) + (Math.round(g * 255) << 8) + Math.round(b * 255)).toString(16).slice(1);
 }
 
 function formatThemeVariables(variables) {
   const theme = {
-    theme_name: figma.root.name, // You might want to make this dynamic
+    theme_name: figma.root.name,
     text_colours: [],
     theme_colours: [],
     theme_primary_text_colour: "",
@@ -65,53 +60,40 @@ function formatThemeVariables(variables) {
     }
   };
 
-  for (const [collectionName, vars] of Object.entries(variables)) {
-    switch (collectionName) {
-      case 'Text Colours':
-        vars.forEach(v => {
-          const color = v.valuesByMode[Object.keys(v.valuesByMode)[0]];
-          const hexColor = rgbToHex(color.r, color.g, color.b);
-          theme.text_colours.push({ name: v.name, colour: hexColor });
-          if (v.name === 'textPrimary') theme.theme_primary_text_colour = hexColor;
-          if (v.name === 'textSecondary') theme.theme_secondary_text_colour = hexColor;
-          if (v.name === 'textTertiary') theme.theme_tertiary_text_colour = hexColor;
-        });
-        break;
-      case 'Background Colours':
-        vars.forEach(v => {
-          const color = v.valuesByMode[Object.keys(v.valuesByMode)[0]];
-          const hexColor = rgbToHex(color.r, color.g, color.b);
-          theme.theme_colours.push({ name: v.name, theme_colour: hexColor });
-          if (v.name === 'backgroundPrimary') theme.theme_primary_background_colour = hexColor;
-          if (v.name === 'backgroundSecondary') theme.theme_secondary_background_colour = hexColor;
-          if (v.name === 'backgroundTertiary') theme.theme_tertiary_background_colour = hexColor;
-        });
-        break;
-      case 'Fonts':
-        vars.forEach(v => {
-          if (v.name === 'fontPrimary') theme.theme_primary_font.font = v.valuesByMode[Object.keys(v.valuesByMode)[0]];
-          if (v.name === 'fontSecondary') theme.theme_secondary_font.font = v.valuesByMode[Object.keys(v.valuesByMode)[0]];
-          if (v.name === 'fontTertiary') theme.theme_tertiary_font.font = v.valuesByMode[Object.keys(v.valuesByMode)[0]];
-          if (v.name === 'fontQuaternary') theme.theme_quaternary_font.font = v.valuesByMode[Object.keys(v.valuesByMode)[0]];
-        });
-        break;
-      case 'Link Colours':
-        vars.forEach(v => {
-          const color = v.valuesByMode[Object.keys(v.valuesByMode)[0]];
-          const hexColor = rgbToHex(color.r, color.g, color.b);
-          if (v.name === 'linkDefault') theme.links.link_colour = hexColor;
-          if (v.name === 'linkHover') theme.links.link_colour_hover = hexColor;
-          if (v.name === 'linkDecoration') theme.links.link_decoration_colour = hexColor;
-          if (v.name === 'linkDecorationHover') theme.links.link_decoration_colour_hover = hexColor;
-        });
-        break;
-      case 'Link Decoration':
-        vars.forEach(v => {
-          if (v.name === 'linkDecorationDefault') theme.links.link_decoration_style = v.valuesByMode[Object.keys(v.valuesByMode)[0]];
-          if (v.name === 'linkDecorationHover') theme.links.link_decoration_style_hover = v.valuesByMode[Object.keys(v.valuesByMode)[0]];
-        });
-        break;
-    }
+  const themeSettings = variables['Theme Settings'];
+  if (themeSettings) {
+    themeSettings.forEach(v => {
+      const value = v.valuesByMode[Object.keys(v.valuesByMode)[0]];
+      if (v.resolvedType === 'COLOR') {
+        const hexColor = rgbToHex(value.r, value.g, value.b);
+        if (v.name.includes('Text Colours')) {
+          theme.text_colours.push({ name: v.name.split('/').pop(), colour: hexColor });
+          if (v.name.includes('textPrimary')) theme.theme_primary_text_colour = hexColor;
+          if (v.name.includes('textSecondary')) theme.theme_secondary_text_colour = hexColor;
+          if (v.name.includes('textTertiary')) theme.theme_tertiary_text_colour = hexColor;
+        } else if (v.name.includes('Background Colours')) {
+          theme.theme_colours.push({ name: v.name.split('/').pop(), theme_colour: hexColor });
+          if (v.name.includes('backgroundPrimary')) theme.theme_primary_background_colour = hexColor;
+          if (v.name.includes('backgroundSecondary')) theme.theme_secondary_background_colour = hexColor;
+          if (v.name.includes('backgroundTertiary')) theme.theme_tertiary_background_colour = hexColor;
+        } else if (v.name.includes('Link Colours')) {
+          if (v.name.includes('linkDefault')) theme.links.link_colour = hexColor;
+          if (v.name.includes('linkHover')) theme.links.link_colour_hover = hexColor;
+          if (v.name.includes('linkDecoration')) theme.links.link_decoration_colour = hexColor;
+          if (v.name.includes('linkDecorationHover')) theme.links.link_decoration_colour_hover = hexColor;
+        }
+      } else if (v.resolvedType === 'STRING') {
+        if (v.name.includes('Fonts')) {
+          if (v.name.includes('fontPrimary')) theme.theme_primary_font.font = value;
+          if (v.name.includes('fontSecondary')) theme.theme_secondary_font.font = value;
+          if (v.name.includes('fontTertiary')) theme.theme_tertiary_font.font = value;
+          if (v.name.includes('fontQuaternary')) theme.theme_quaternary_font.font = value;
+        } else if (v.name.includes('Link Decoration')) {
+          if (v.name.includes('linkDecorationDefault')) theme.links.link_decoration_style = value;
+          if (v.name.includes('linkDecorationHover')) theme.links.link_decoration_style_hover = value;
+        }
+      }
+    });
   }
 
   return [theme];
