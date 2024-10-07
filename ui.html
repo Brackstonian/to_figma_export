@@ -1,0 +1,45 @@
+<style>
+  body {
+    font-family: sans-serif;
+    text-align: center;
+    padding: 20px;
+  }
+  button {
+    padding: 10px 20px;
+    background-color: #18A0FB;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #status {
+    margin-top: 20px;
+    color: #333;
+  }
+</style>
+
+<h2>Export Figma Variables</h2>
+<button id="exportBtn">Export Variables</button>
+
+<script>
+document.getElementById('exportBtn').onclick = () => {
+  parent.postMessage({ pluginMessage: { type: 'export-variables' } }, '*');
+}
+
+window.onmessage = async (event) => {
+  const message = event.data.pluginMessage;
+  if (message.type === 'export-json') {
+    const jsonData = message.data;
+    const blob = new Blob([jsonData], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'figma_variables.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } else if (message.type === 'error') {
+    document.getElementById('status').textContent = message.message;
+  }
+}
+</script>
