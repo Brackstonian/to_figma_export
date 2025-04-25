@@ -526,14 +526,37 @@ function shouldIncludeCollection(category, collectionName) {
   };
   return categoryFilters[category](collectionName);
 }
-function resolveAlias(variable) {
-  if (variable.type === 'VARIABLE_ALIAS') {
-    var referencedVariable = figma.variables.getVariableById(variable.id);
-    if (referencedVariable) {
-      return [referencedVariable.name];
-    }
-  }
-  return variable;
+function resolveAlias(_x) {
+  return _resolveAlias.apply(this, arguments);
+}
+function _resolveAlias() {
+  _resolveAlias = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(variable) {
+    var referencedVariable;
+    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+      while (1) switch (_context2.prev = _context2.next) {
+        case 0:
+          if (!(variable.type === 'VARIABLE_ALIAS')) {
+            _context2.next = 6;
+            break;
+          }
+          _context2.next = 3;
+          return figma.variables.getVariableByIdAsync(variable.id);
+        case 3:
+          referencedVariable = _context2.sent;
+          if (!referencedVariable) {
+            _context2.next = 6;
+            break;
+          }
+          return _context2.abrupt("return", [referencedVariable.name]);
+        case 6:
+          return _context2.abrupt("return", variable);
+        case 7:
+        case "end":
+          return _context2.stop();
+      }
+    }, _callee2);
+  }));
+  return _resolveAlias.apply(this, arguments);
 }
 
 /***/ })

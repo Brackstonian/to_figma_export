@@ -8,9 +8,9 @@
     "webpack-cli": "^5.1.4"
   },
   "name": "to_figma_export",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
-  "main": "code.js",
+  "main": "dist/plugin.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

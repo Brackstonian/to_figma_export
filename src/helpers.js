@@ -61,9 +61,9 @@ export function shouldIncludeCollection(category, collectionName) {
     };
     return categoryFilters[category](collectionName);
 }
-export function resolveAlias(variable) {
+export async function resolveAlias(variable) {
     if (variable.type === 'VARIABLE_ALIAS') {
-        const referencedVariable = figma.variables.getVariableById(variable.id);
+        const referencedVariable = await figma.variables.getVariableByIdAsync(variable.id);
         if (referencedVariable) {
             return [referencedVariable.name];
         }
