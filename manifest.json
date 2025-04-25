@@ -1,9 +1,11 @@
 {
   "name": "Total Onion Export Tool",
-  "id": "to-export-tool",
+  "id": "1497517335029659925",
   "api": "1.0.0",
-  "main": "code.js",
+  "main": "dist/plugin.js",
   "ui": "ui.html",
   "enableProposedApi": false,
-  "editorType": ["figma", "figjam"]
+  "editorType": ["figma", "figjam"],
+  "networkAccess": { "allowedDomains": ["none"] },
+  "documentAccess": "dynamic-page"
 }

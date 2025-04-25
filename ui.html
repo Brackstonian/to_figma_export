@@ -22,16 +22,22 @@
 <button id="exportBtn">Export Variables</button>
 <hr>
 <button id="exportThemeBtn">Export Theme Variables (theme.json)</button>
-
+<hr>
+<button id="exportTypeBtn">Export Typography Variables (theme.json)</button>
 
 <script>
 document.getElementById('exportBtn').onclick = () => {
-  parent.postMessage({ pluginMessage: { type: 'export-variables' } }, '*');
+  parent.postMessage({ pluginMessage: { type: 'export-variables' , category: 'all' } }, '*');
 }
 
 document.getElementById('exportThemeBtn').onclick = () => {
   parent.postMessage({ pluginMessage: { type: 'export-variables', category: 'theme' } }, '*');
 }
+
+document.getElementById('exportTypeBtn').onclick = () => {
+  parent.postMessage({ pluginMessage: { type: 'export-variables', category: 'typography' } }, '*');
+}
+
 
 window.onmessage = async (event) => {
   const message = event.data.pluginMessage;
